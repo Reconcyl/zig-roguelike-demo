@@ -38,6 +38,8 @@ fn getCmd(stdin: File) !?Command {
 }
 
 pub fn main() !void {
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+
     try render.set_raw_term();
     defer render.restore_term();
 
@@ -50,7 +52,8 @@ pub fn main() !void {
     render.goTo(stdout, 0, 0);
     render.clear(stdout);
 
-    var world = try World.init();
+    var world = try World.init(&gpa.allocator);
+    defer world.deinit();
     var screen = render.Screen.init();
 
     while (true) {

@@ -26,10 +26,10 @@ pub const World = struct {
     cur_idx: usize,
     player: [2]usize,
 
-    pub fn init() !World {
+    pub fn init(alloc: *std.mem.Allocator) !World {
         var rng = try initRng();
 
-        var levels = LevelList.init(std.heap.page_allocator);
+        var levels = LevelList.init(alloc);
         const first_level = Level.new(&rng.random);
         try levels.append(first_level);
 
@@ -39,6 +39,10 @@ pub const World = struct {
             .cur_idx = 0,
             .player = first_level.upstair,
         };
+    }
+
+    pub fn deinit(self: Self) void {
+        self.levels.deinit();
     }
 
     pub fn curLevel(self: *const World) *const Level {
@@ -81,12 +85,7 @@ pub const World = struct {
                 }
                 self.cur_idx += 1;
                 while (self.cur_idx >= self.levels.items.len) {
-                    const new_level = Level.new(&self.rng.random);
-                    std.debug.print("{}: about to append new level\n", .{self.cur_idx});
-                    std.debug.print("len: {}\n", .{self.levels.items.len});
-                    std.debug.print("cap: {}\n", .{self.levels.capacity});
-                    try self.levels.append(new_level);
-                    std.debug.print("{}: finished appending\n", .{self.cur_idx});
+                    try self.levels.append(Level.new(&self.rng.random));
                 }
                 self.player = self.curLevel().upstair;
                 return true;
