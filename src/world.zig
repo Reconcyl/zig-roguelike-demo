@@ -41,7 +41,7 @@ pub const World = struct {
         };
     }
 
-    pub fn deinit(self: Self) void {
+    pub fn deinit(self: World) void {
         self.levels.deinit();
     }
 
