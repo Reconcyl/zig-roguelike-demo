@@ -6,9 +6,7 @@ const Level = level.Level;
 const LevelList = std.ArrayList(Level);
 
 fn initRng() !Rng {
-    var buf: [8]u8 = undefined;
-    try std.crypto.randomBytes(buf[0..]);
-    const seed = std.mem.readIntNative(u64, buf[0..8]);
+    const seed = std.crypto.random.int(u64);
     return Rng.init(seed);
 }
 
