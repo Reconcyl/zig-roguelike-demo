@@ -52,13 +52,13 @@ pub fn main() !void {
     render.goTo(stdout, 0, 0);
     render.clear(stdout);
 
-    var world = try World.init(&gpa.allocator);
+    var world = try World.init(gpa.allocator());
     defer world.deinit();
     var screen = render.Screen.init();
 
     while (true) {
         screen.redraw(world.curLevel(), world.player, stdout);
-        var cmd = (try getCmd(stdin)) orelse break;
+        const cmd = (try getCmd(stdin)) orelse break;
 
         if (!try world.handleCommand(cmd)) break;
     }

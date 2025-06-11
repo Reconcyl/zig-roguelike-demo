@@ -2,11 +2,12 @@ const std = @import("std");
 const Writer = std.fs.File.Writer;
 const Alloc = std.heap.ArenaAllocator;
 
-const c = @cImport(@cInclude("termios.h"));
+const c = @cImport(@cInclude("sys/termios.h"));
 const stdin_fd: u8 = 0;
 
 const level_mod = @import("level.zig");
 const Level = level_mod.Level;
+const int = level_mod.int;
 const posEq = level_mod.posEq;
 
 const RenderError = error{
@@ -63,15 +64,15 @@ pub const Screen = struct {
     }
 
     fn nearWall(level: *const Level, pos: [2]usize, dx: i8, dy: i8) bool {
-        const real_x = @intCast(isize, pos[0]) + @intCast(isize, dx);
-        const real_y = @intCast(isize, pos[1]) + @intCast(isize, dy);
+        const real_x: isize = int(pos[0]) + int(dx);
+        const real_y: isize = int(pos[1]) + int(dy);
 
         if (real_x < 0 or real_y < 0) {
             return false;
         } else {
             const real_pos = [_]usize{
-                @intCast(usize, real_x),
-                @intCast(usize, real_y),
+                @intCast(real_x),
+                @intCast(real_y),
             };
             if (level.get(real_pos)) |tile| {
                 return tile == .wall;
@@ -114,7 +115,7 @@ pub const Screen = struct {
         const first_time_drawing = self.chars == null;
         if (first_time_drawing) {
             var chars: [Level.height][Level.width]u8 = undefined;
-            for (chars) |*row| {
+            for (&chars) |*row| {
                 for (row) |*char| {
                     char.* = 0;
                 }

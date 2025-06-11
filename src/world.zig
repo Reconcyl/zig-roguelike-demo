@@ -2,6 +2,7 @@ const std = @import("std");
 const Rng = std.rand.DefaultPrng;
 
 const level = @import("level.zig");
+const int = level.int;
 const Level = level.Level;
 const LevelList = std.ArrayList(Level);
 
@@ -24,11 +25,11 @@ pub const World = struct {
     cur_idx: usize,
     player: [2]usize,
 
-    pub fn init(alloc: *std.mem.Allocator) !World {
+    pub fn init(alloc: std.mem.Allocator) !World {
         var rng = try initRng();
 
         var levels = LevelList.init(alloc);
-        const first_level = Level.new(&rng.random);
+        const first_level = Level.new(rng.random());
         try levels.append(first_level);
 
         return World{
@@ -56,9 +57,9 @@ pub const World = struct {
             .quit => return false,
 
             .move => |deltas| {
-                const new_x = @intCast(isize, self.player[0]) + @intCast(isize, deltas[0]);
-                const new_y = @intCast(isize, self.player[1]) + @intCast(isize, deltas[1]);
-                const new = [_]usize{ @intCast(usize, new_x), @intCast(usize, new_y) };
+                const new_x: isize = int(self.player[0]) + int(deltas[0]);
+                const new_y: isize = int(self.player[1]) + int(deltas[1]);
+                const new = [_]usize{ @bitCast(new_x), @bitCast(new_y) };
                 if (self.curLevel().get(new).? != .wall) {
                     self.player = new;
                 }
@@ -83,7 +84,7 @@ pub const World = struct {
                 }
                 self.cur_idx += 1;
                 while (self.cur_idx >= self.levels.items.len) {
-                    try self.levels.append(Level.new(&self.rng.random));
+                    try self.levels.append(Level.new(self.rng.random()));
                 }
                 self.player = self.curLevel().upstair;
                 return true;

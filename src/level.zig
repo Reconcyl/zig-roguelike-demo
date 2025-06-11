@@ -1,6 +1,10 @@
 const std = @import("std");
 const rand = std.rand;
 
+pub fn int(x: anytype) isize {
+    return @intCast(x);
+}
+
 pub fn posEq(a: [2]usize, b: [2]usize) bool {
     return a[0] == b[0] and a[1] == b[1];
 }
@@ -16,7 +20,7 @@ pub const Level = struct {
     pub const width: usize = 30;
     pub const height: usize = 15;
 
-    fn genPos(rng: *rand.Random) [2]usize {
+    fn genPos(rng: rand.Random) [2]usize {
         const x = rng.uintLessThan(usize, width - 2);
         const y = rng.uintLessThan(usize, height - 2);
         return [_]usize{ x + 1, y + 1 };
@@ -36,7 +40,7 @@ pub const Level = struct {
         }
     }
 
-    pub fn new(rng: *rand.Random) Level {
+    pub fn new(rng: rand.Random) Level {
         const upstair = genPos(rng);
         var downstair: [2]usize = undefined;
         while (true) {

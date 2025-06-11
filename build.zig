@@ -1,6 +1,6 @@
-const Builder = @import("std").build.Builder;
+const Build = @import("std").Build;
 
-pub fn build(b: *Builder) void {
+pub fn build(b: *Build) void {
     // Standard target options allows the person running `zig build` to choose
     // what target to build for. Here we do not override the defaults, which
     // means any target is allowed, and the default is native. Other options
@@ -9,14 +9,18 @@ pub fn build(b: *Builder) void {
 
     // Standard release options allow the person running `zig build` to select
     // between Debug, ReleaseSafe, ReleaseFast, and ReleaseSmall.
-    const mode = b.standardReleaseOptions();
+    const optimize = b.standardOptimizeOption(.{});
 
-    const exe = b.addExecutable("zig-roguelike-demo", "src/main.zig");
-    exe.setTarget(target);
-    exe.setBuildMode(mode);
-    exe.install();
+    const exe = b.addExecutable(.{
+        .name = "zig-roguelike-demo",
+        .root_source_file = b.path("src/main.zig"),
+        .target = target,
+        .optimize = optimize,
+    });
+    exe.linkLibC();
+    b.installArtifact(exe);
 
-    const run_cmd = exe.run();
+    const run_cmd = b.addRunArtifact(exe);
     run_cmd.step.dependOn(b.getInstallStep());
     if (b.args) |args| {
         run_cmd.addArgs(args);
